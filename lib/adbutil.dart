@@ -94,7 +94,7 @@ class AdbUtil {
     _isPooling = false;
   }
 
-  static Future<void> connectDevices(String ipAndPort) async {
+  static Future<AdbResult> connectDevices(String ipAndPort) async {
     final String result = await execCmd('adb connect $ipAndPort');
     if (result.contains('refused')) {
       throw AdbException(message: '$ipAndPort 无法连接，对方可能未打开网络ADB调试');
