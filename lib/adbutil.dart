@@ -37,7 +37,7 @@ Future<String> execCmd(String cmd) async {
       args.sublist(1),
       environment: PlatformUtil.environment(),
       includeParentEnvironment: true,
-      runInShell: true,
+      // runInShell: true,
     );
   }
   if ('${execResult.stderr}'.isNotEmpty) {
@@ -105,6 +105,7 @@ class AdbUtil {
     } else if (result.contains('connect')) {
       return AdbResult('连接成功');
     }
+    return AdbResult(result);
   }
 
   static Future<void> disconnectDevices(String ipAndPort) async {
