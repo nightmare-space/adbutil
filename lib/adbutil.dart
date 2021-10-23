@@ -1,6 +1,7 @@
 library adbutil;
 
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:global_repository/global_repository.dart';
 
 class AdbResult {
@@ -18,6 +19,26 @@ class AdbException implements Exception {
   String toString() {
     return 'adb exception : $message';
   }
+}
+
+String packageName = 'com.nightmare.adbtools';
+String dataPath = '/data/data/$packageName';
+String filesPath = '$dataPath/files';
+String usrPath = '$filesPath/usr';
+String binPath = '$usrPath/bin';
+
+Map<String, dynamic> envir() {
+  final Map<String, String> map = Map.from(Platform.environment);
+  if (Platform.isWindows) {
+    map['PATH'] = binPath + ';' + map['PATH'];
+  } else {
+    map['PATH'] = binPath + ':' + map['PATH'];
+  }
+  return map;
+}
+
+Future<String> asyncExec(String cmd) async {
+  return await compute(execCmd, cmd);
 }
 
 Future<String> execCmd(String cmd) async {
@@ -42,6 +63,7 @@ Future<String> execCmd(String cmd) async {
   }
   if ('${execResult.stderr}'.isNotEmpty) {
     Log.e('adb stderr -> ${execResult.stderr}');
+    throw Exception(execResult.stderr);
   }
   // Log.e('adb stdout -> ${execResult.stdout}');
   return execResult.stdout.toString().trim();
@@ -127,5 +149,36 @@ class AdbUtil {
 
   static Future<void> disconnectDevices(String ipAndPort) async {
     final String result = await execCmd('adb disconnect $ipAndPort');
+  }
+
+  static Future<int> getForwardPort(String serial) async {
+    int rangeFirst = 27183;
+    int rangeLast = 27199;
+    while (rangeFirst != rangeLast) {
+      try {
+        await execCmd(
+          'adb -s $serial forward tcp:$rangeFirst localabstract:scrcpy',
+        );
+        Log.e('端口$rangeFirst绑定成功');
+        return rangeFirst;
+      } catch (e) {
+        Log.w('端口$rangeFirst绑定失败');
+        rangeFirst++;
+      }
+    }
+    return null;
+  }
+
+  static Future<bool> pushFile(
+    String serial,
+    String filePath,
+    String pushPath,
+  ) async {
+    try {
+      await execCmd('adb -s $serial push $filePath $pushPath');
+      return true;
+    } catch (e) {
+      return false;
+    }
   }
 }
