@@ -151,19 +151,22 @@ class AdbUtil {
     final String result = await execCmd('adb disconnect $ipAndPort');
   }
 
-  static Future<int> getForwardPort(String serial) async {
-    int rangeFirst = 27183;
-    int rangeLast = 27199;
-    while (rangeFirst != rangeLast) {
+  static Future<int> getForwardPort(
+    String serial, {
+    int rangeStart = 27183,
+    int rangeEnd = 27199,
+    String targetArg = 'localabstract:scrcpy',
+  }) async {
+    while (rangeStart != rangeEnd) {
       try {
         await execCmd(
-          'adb -s $serial forward tcp:$rangeFirst localabstract:scrcpy',
+          'adb -s $serial forward tcp:$rangeStart $targetArg',
         );
-        Log.e('端口$rangeFirst绑定成功');
-        return rangeFirst;
+        Log.d('端口$rangeStart绑定成功');
+        return rangeStart;
       } catch (e) {
-        Log.w('端口$rangeFirst绑定失败');
-        rangeFirst++;
+        Log.e('端口$rangeStart绑定失败');
+        rangeStart++;
       }
     }
     return null;
