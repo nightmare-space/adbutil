@@ -1,6 +1,7 @@
 name: adbutil
 description: A new Flutter package project.
 version: 0.0.1
+publish_to: "none"
 homepage:
 
 environment:
@@ -11,7 +12,7 @@ dependencies:
   flutter:
     sdk: flutter
   global_repository:
-    path: /Users/nightmare/Desktop/nightmare-space/global_repository
+    git: https://github.com/nightmare-space/global_repository
 
 dev_dependencies:
   flutter_test:
