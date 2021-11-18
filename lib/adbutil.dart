@@ -58,7 +58,34 @@ Future<String> execCmd(String cmd) async {
       args.sublist(1),
       environment: PlatformUtil.environment(),
       includeParentEnvironment: true,
-      // runInShell: true,
+      runInShell: true,
+    );
+  }
+  if ('${execResult.stderr}'.isNotEmpty) {
+    Log.e('adb stderr -> ${execResult.stderr}');
+    throw Exception(execResult.stderr);
+  }
+  // Log.e('adb stdout -> ${execResult.stdout}');
+  return execResult.stdout.toString().trim();
+}
+
+Future<String> execCmd2(List<String> args) async {
+  ProcessResult execResult;
+  if (Platform.isWindows) {
+    execResult = await Process.run(
+      args[0],
+      args.sublist(1),
+      environment: PlatformUtil.environment(),
+      includeParentEnvironment: true,
+      runInShell: true,
+    );
+  } else {
+    execResult = await Process.run(
+      args[0],
+      args.sublist(1),
+      environment: PlatformUtil.environment(),
+      includeParentEnvironment: true,
+      runInShell: true,
     );
   }
   if ('${execResult.stderr}'.isNotEmpty) {
@@ -103,8 +130,10 @@ class AdbUtil {
     }
     _isPooling = true;
     while (true) {
-      String result = await execCmd('adb devices');
-      _notifiAll(result);
+      try {
+        String result = await execCmd('adb devices');
+        _notifiAll(result);
+      } catch (e) {}
       await Future.delayed(const Duration(milliseconds: 300));
       if (!_isPooling) {
         break;
@@ -133,6 +162,7 @@ class AdbUtil {
     // Log.d(resulta.stdout);
     // Log.e(resulta.stderr);
     final String result = await execCmd(cmd);
+    Log.w('connectDevices -> $result');
     if (result.contains('refused')) {
       throw AdbException(message: '$ipAndPort 无法连接，对方可能未打开网络ADB调试');
     } else if (result.contains('unable to connect')) {
@@ -178,9 +208,18 @@ class AdbUtil {
     String pushPath,
   ) async {
     try {
-      await execCmd('adb -s $serial push $filePath $pushPath');
+      String data = await execCmd2([
+        'adb',
+        '-s',
+        serial,
+        'push',
+        filePath,
+        pushPath,
+      ]);
+      Log.d('pushFile log -> $data');
       return true;
     } catch (e) {
+      Log.e('pushFile error -> $pushFile');
       return false;
     }
   }
