@@ -48,7 +48,7 @@ Future<String> execCmd(String cmd) async {
     execResult = await Process.run(
       args[0],
       args.sublist(1),
-      environment: PlatformUtil.environment(),
+      environment: RuntimeEnvir.envir(),
       includeParentEnvironment: true,
       runInShell: true,
     );
@@ -56,7 +56,7 @@ Future<String> execCmd(String cmd) async {
     execResult = await Process.run(
       args[0],
       args.sublist(1),
-      environment: PlatformUtil.environment(),
+      environment: RuntimeEnvir.envir(),
       includeParentEnvironment: true,
       runInShell: true,
     );
@@ -75,7 +75,7 @@ Future<String> execCmd2(List<String> args) async {
     execResult = await Process.run(
       args[0],
       args.sublist(1),
-      environment: PlatformUtil.environment(),
+      environment: RuntimeEnvir.envir(),
       includeParentEnvironment: true,
       runInShell: true,
     );
@@ -83,7 +83,7 @@ Future<String> execCmd2(List<String> args) async {
     execResult = await Process.run(
       args[0],
       args.sublist(1),
-      environment: PlatformUtil.environment(),
+      environment: RuntimeEnvir.envir(),
       includeParentEnvironment: true,
       runInShell: true,
     );
@@ -175,6 +175,7 @@ class AdbUtil {
       return AdbResult('配对成功，还需要连接一次');
     }
     return AdbResult(result);
+    //todo timed out
   }
 
   static Future<void> disconnectDevices(String ipAndPort) async {

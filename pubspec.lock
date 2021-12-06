@@ -80,13 +80,13 @@ packages:
       name: get
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "4.3.6"
+    version: "4.5.1"
   global_repository:
     dependency: "direct main"
     description:
       path: "."
       ref: HEAD
-      resolved-ref: "7e9209e4485efccd1377c1c8e74692096584b4b9"
+      resolved-ref: "54428a018d40cb3c0f8b95752427323f6c179862"
       url: "https://github.com/nightmare-space/global_repository"
     source: git
     version: "0.0.1"
@@ -131,23 +131,23 @@ packages:
       name: permission_handler_platform_interface
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "3.6.1"
+    version: "3.7.0"
   plugin_platform_interface:
     dependency: transitive
     description:
       name: plugin_platform_interface
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "2.0.1"
+    version: "2.0.2"
   signale:
     dependency: transitive
     description:
       path: "."
       ref: HEAD
-      resolved-ref: c08220ab2fff96addd575e1c0744984bda17a5ce
-      url: "https://github.com/Nightmare-MY/signale"
+      resolved-ref: "99e278923e468ca882dd13208255fd0944ad5da3"
+      url: "https://github.com/nightmare-space/signale"
     source: git
-    version: "0.0.5"
+    version: "0.0.6"
   sky_engine:
     dependency: transitive
     description: flutter
@@ -217,5 +217,5 @@ packages:
     source: hosted
     version: "2.1.0"
 sdks:
-  dart: ">=2.12.0 <3.0.0"
-  flutter: ">=1.22.0"
+  dart: ">=2.14.0 <3.0.0"
+  flutter: ">=2.5.0"
