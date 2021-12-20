@@ -41,7 +41,10 @@ Future<String> asyncExec(String cmd) async {
   return await compute(execCmd, cmd);
 }
 
-Future<String> execCmd(String cmd) async {
+Future<String> execCmd(
+  String cmd, {
+  bool throwException = true,
+}) async {
   final List<String> args = cmd.split(' ');
   ProcessResult execResult;
   if (Platform.isWindows) {
@@ -62,8 +65,10 @@ Future<String> execCmd(String cmd) async {
     );
   }
   if ('${execResult.stderr}'.isNotEmpty) {
-    Log.e('adb stderr -> ${execResult.stderr}');
-    throw Exception(execResult.stderr);
+    if (throwException) {
+      Log.e('adb stderr -> ${execResult.stderr}');
+      throw Exception(execResult.stderr);
+    }
   }
   // Log.e('adb stdout -> ${execResult.stdout}');
   return execResult.stdout.toString().trim();
@@ -163,10 +168,8 @@ class AdbUtil {
     // Log.e(resulta.stderr);
     final String result = await execCmd(cmd);
     Log.w('connectDevices -> $result');
-    if (result.contains('refused')) {
+    if (result.contains(RegExp('refused|failed'))) {
       throw AdbException(message: '$ipAndPort 无法连接，对方可能未打开网络ADB调试');
-    } else if (result.contains('unable to connect')) {
-      throw AdbException(message: '连接失败，对方设备可能未打开网络ADB调试');
     } else if (result.contains('already connected')) {
       throw AdbException(message: '该设备已连接');
     } else if (result.contains('connect')) {
