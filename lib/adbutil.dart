@@ -156,7 +156,6 @@ class AdbUtil {
       cmd =
           'adb pair ${ipAndPort.split(' ').first} ${ipAndPort.split(' ').last}';
     }
-    Log.w(cmd);
     // ProcessResult resulta = await Process.run(
     //   'adb',
     //   ['pair', '192.168.237.156:40351', '723966'],
@@ -167,7 +166,6 @@ class AdbUtil {
     // Log.d(resulta.stdout);
     // Log.e(resulta.stderr);
     final String result = await execCmd(cmd);
-    Log.w('connectDevices -> $result');
     if (result.contains(RegExp('refused|failed'))) {
       throw AdbException(message: '$ipAndPort 无法连接，对方可能未打开网络ADB调试');
     } else if (result.contains('already connected')) {
