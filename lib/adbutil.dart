@@ -94,7 +94,7 @@ Future<String> execCmd2(List<String> args) async {
     );
   }
   if ('${execResult.stderr}'.isNotEmpty) {
-    Log.e('adb stderr -> ${execResult.stderr}');
+    Log.w('adb stderr -> ${execResult.stderr}');
     throw Exception(execResult.stderr);
   }
   // Log.e('adb stdout -> ${execResult.stdout}');
