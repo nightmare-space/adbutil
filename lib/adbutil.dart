@@ -66,7 +66,7 @@ Future<String> execCmd(
   }
   if ('${execResult.stderr}'.isNotEmpty) {
     if (throwException) {
-      Log.e('adb stderr -> ${execResult.stderr}');
+      Log.w('adb stderr -> ${execResult.stderr}');
       throw Exception(execResult.stderr);
     }
   }
