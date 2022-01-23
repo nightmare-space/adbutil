@@ -21,7 +21,7 @@ class AdbException implements Exception {
   }
 }
 
-String packageName = 'com.nightmare.adbtools';
+String packageName = 'com.nightmare.remote';
 String dataPath = '/data/data/$packageName';
 String filesPath = '$dataPath/files';
 String usrPath = '$filesPath/usr';
@@ -59,7 +59,7 @@ Future<String> execCmd(
     execResult = await Process.run(
       args[0],
       args.sublist(1),
-      environment: RuntimeEnvir.envir(),
+      environment: envir(),
       includeParentEnvironment: true,
       runInShell: true,
     );
@@ -94,7 +94,7 @@ Future<String> execCmd2(List<String> args) async {
     );
   }
   if ('${execResult.stderr}'.isNotEmpty) {
-    Log.w('adb stderr -> ${execResult.stderr}');
+    // Log.w('adb stderr -> ${execResult.stderr}');
     throw Exception(execResult.stderr);
   }
   // Log.e('adb stdout -> ${execResult.stdout}');
@@ -129,17 +129,21 @@ class AdbUtil {
     }
   }
 
-  static Future<void> startPoolingListDevices() async {
+  static Future<void> startPoolingListDevices({
+    Duration duration = const Duration(milliseconds: 600),
+  }) async {
     if (_isPooling) {
       return;
     }
     _isPooling = true;
     while (true) {
       try {
-        String result = await execCmd('adb devices');
+        String result = await asyncExec('adb devices');
         _notifiAll(result);
-      } catch (e) {}
-      await Future.delayed(const Duration(milliseconds: 300));
+      } catch (e) {
+        Log.i('e : $e');
+      }
+      await Future.delayed(duration);
       if (!_isPooling) {
         break;
       }
@@ -197,7 +201,7 @@ class AdbUtil {
         Log.d('端口$rangeStart绑定成功');
         return rangeStart;
       } catch (e) {
-        Log.e('端口$rangeStart绑定失败');
+        Log.w('端口$rangeStart绑定失败');
         rangeStart++;
       }
     }
