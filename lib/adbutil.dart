@@ -21,24 +21,48 @@ class AdbException implements Exception {
   }
 }
 
-String packageName = 'com.nightmare.remote';
-String dataPath = '/data/data/$packageName';
-String filesPath = '$dataPath/files';
-String usrPath = '$filesPath/usr';
-String binPath = '$usrPath/bin';
+class Arg {
+  final String package;
+  final String cmd;
 
-Map<String, dynamic> envir() {
-  final Map<String, String> map = Map.from(Platform.environment);
-  if (Platform.isWindows) {
-    map['PATH'] = binPath + ';' + map['PATH'];
-  } else {
-    map['PATH'] = binPath + ':' + map['PATH'];
-  }
-  return map;
+  Arg(this.package, this.cmd);
 }
 
 Future<String> asyncExec(String cmd) async {
-  return await compute(execCmd, cmd);
+  return await compute(execCmdForIsolate, Arg(RuntimeEnvir.packageName, cmd));
+}
+
+Future<String> execCmdForIsolate(
+  Arg arg, {
+  bool throwException = true,
+}) async {
+  RuntimeEnvir.initEnvirWithPackageName(arg.package);
+  final List<String> args = arg.cmd.split(' ');
+  ProcessResult execResult;
+  if (Platform.isWindows) {
+    execResult = await Process.run(
+      args[0],
+      args.sublist(1),
+      environment: RuntimeEnvir.envir(),
+      includeParentEnvironment: true,
+      runInShell: true,
+    );
+  } else {
+    execResult = await Process.run(
+      args[0],
+      args.sublist(1),
+      environment: RuntimeEnvir.envir(),
+      includeParentEnvironment: true,
+      runInShell: true,
+    );
+  }
+  if ('${execResult.stderr}'.isNotEmpty) {
+    if (throwException) {
+      Log.w('adb stderr -> ${execResult.stderr}');
+    }
+  }
+  // Log.e('adb stdout -> ${execResult.stdout}');
+  return execResult.stdout.toString().trim();
 }
 
 Future<String> execCmd(
@@ -59,9 +83,9 @@ Future<String> execCmd(
     execResult = await Process.run(
       args[0],
       args.sublist(1),
-      environment: envir(),
+      environment: RuntimeEnvir.envir(),
       includeParentEnvironment: true,
-      runInShell: true,
+      runInShell: false,
     );
   }
   if ('${execResult.stderr}'.isNotEmpty) {
