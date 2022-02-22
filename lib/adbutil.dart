@@ -29,6 +29,9 @@ class Arg {
 }
 
 Future<String> asyncExec(String cmd) async {
+  if (kDebugMode) {
+    return execCmd(cmd);
+  }
   return await compute(execCmdForIsolate, Arg(RuntimeEnvir.packageName, cmd));
 }
 
@@ -53,7 +56,7 @@ Future<String> execCmdForIsolate(
       args.sublist(1),
       environment: RuntimeEnvir.envir(),
       includeParentEnvironment: true,
-      runInShell: true,
+      runInShell: false,
     );
   }
   if ('${execResult.stderr}'.isNotEmpty) {
