@@ -135,7 +135,7 @@ typedef ResultCall = void Function(String data);
 
 class AdbUtil {
   static final List<ResultCall> _callback = [];
-
+  static Isolate isolate;
   static Future<void> reconnectDevices(String ip, [String port]) async {
     await disconnectDevices(ip);
     connectDevices(ip);
@@ -174,14 +174,15 @@ class AdbUtil {
         // Log.e('Isolate Message -> $msg');
       }
     });
-    await Isolate.spawn(
+    isolate = await Isolate.spawn(
       adbPollingIsolate,
       IsolateArgs(duration, receivePort.sendPort, RuntimeEnvir.packageName),
     );
   }
 
   static Future<void> stopPoolingListDevices() async {
-    // _isPooling = false;
+    _isPooling = false;
+    isolate.kill(priority: Isolate.immediate);
   }
 
   static Future<AdbResult> connectDevices(String ipAndPort) async {
