@@ -1,6 +1,7 @@
 library adbutil;
 
 import 'dart:io';
+import 'dart:isolate';
 import 'package:flutter/foundation.dart';
 import 'package:global_repository/global_repository.dart';
 
@@ -117,7 +118,7 @@ Future<String> execCmd2(List<String> args) async {
       args.sublist(1),
       environment: RuntimeEnvir.envir(),
       includeParentEnvironment: true,
-      runInShell: true,
+      runInShell: false,
     );
   }
   if ('${execResult.stderr}'.isNotEmpty) {
@@ -163,22 +164,24 @@ class AdbUtil {
       return;
     }
     _isPooling = true;
-    while (true) {
-      try {
-        String result = await asyncExec('adb devices');
-        _notifiAll(result);
-      } catch (e) {
-        Log.i('e : $e');
+    SendPort sendPort;
+    final ReceivePort receivePort = ReceivePort();
+    receivePort.listen((dynamic msg) {
+      if (sendPort == null) {
+        sendPort = msg as SendPort;
+      } else {
+        _notifiAll(msg);
+        // Log.e('Isolate Message -> $msg');
       }
-      await Future.delayed(duration);
-      if (!_isPooling) {
-        break;
-      }
-    }
+    });
+    await Isolate.spawn(
+      adbPollingIsolate,
+      IsolateArgs(duration, receivePort.sendPort, RuntimeEnvir.packageName),
+    );
   }
 
   static Future<void> stopPoolingListDevices() async {
-    _isPooling = false;
+    // _isPooling = false;
   }
 
   static Future<AdbResult> connectDevices(String ipAndPort) async {
@@ -224,6 +227,7 @@ class AdbUtil {
       try {
         await execCmd(
           'adb -s $serial forward tcp:$rangeStart $targetArg',
+          throwException: false,
         );
         Log.d('端口$rangeStart绑定成功');
         return rangeStart;
@@ -255,5 +259,31 @@ class AdbUtil {
       Log.e('pushFile error -> $pushFile');
       return false;
     }
+  }
+}
+
+class IsolateArgs {
+  final Duration duration;
+  final SendPort sendPort;
+  final String package;
+
+  IsolateArgs(this.duration, this.sendPort, this.package);
+}
+
+// 新isolate的入口函数
+Future<void> adbPollingIsolate(IsolateArgs args) async {
+  // 实例化一个ReceivePort 以接收消息
+  final ReceivePort receivePort = ReceivePort();
+  RuntimeEnvir.initEnvirWithPackageName(args.package);
+  // 把它的sendPort发送给宿主isolate，以便宿主可以给它发送消息
+  args.sendPort.send(receivePort.sendPort);
+  while (true) {
+    try {
+      String result = await execCmd('adb devices');
+      args.sendPort.send(result);
+    } catch (e) {
+      Log.i('e : ${e.toString()}');
+    }
+    await Future.delayed(args.duration);
   }
 }
