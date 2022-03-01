@@ -181,6 +181,9 @@ class AdbUtil {
   }
 
   static Future<void> stopPoolingListDevices() async {
+    if (!_isPooling) {
+      return;
+    }
     _isPooling = false;
     isolate.kill(priority: Isolate.immediate);
   }
