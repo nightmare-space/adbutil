@@ -78,7 +78,7 @@ Future<String> execCmd(
   ProcessResult execResult;
   if (Platform.isWindows) {
     execResult = await Process.run(
-      args[0],
+      RuntimeEnvir.binPath + Platform.pathSeparator + args[0],
       args.sublist(1),
       environment: RuntimeEnvir.envir(),
       includeParentEnvironment: true,
