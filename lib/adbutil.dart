@@ -1,5 +1,6 @@
 library adbutil;
 
+import 'dart:async';
 import 'dart:io';
 import 'dart:isolate';
 import 'package:flutter/foundation.dart';
@@ -81,7 +82,7 @@ Future<String> execCmd(
       args.sublist(1),
       environment: RuntimeEnvir.envir(),
       includeParentEnvironment: true,
-      runInShell: true,
+      runInShell: false,
     );
   } else {
     execResult = await Process.run(
@@ -281,13 +282,12 @@ Future<void> adbPollingIsolate(IsolateArgs args) async {
   RuntimeEnvir.initEnvirWithPackageName(args.package);
   // 把它的sendPort发送给宿主isolate，以便宿主可以给它发送消息
   args.sendPort.send(receivePort.sendPort);
-  while (true) {
+  final Timer timer = Timer.periodic(args.duration, (timer) async {
     try {
       String result = await execCmd('adb devices');
       args.sendPort.send(result);
     } catch (e) {
       Log.i('e : ${e.toString()}');
     }
-    await Future.delayed(args.duration);
-  }
+  });
 }
