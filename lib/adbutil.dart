@@ -6,21 +6,14 @@ import 'dart:isolate';
 import 'package:flutter/foundation.dart';
 import 'package:global_repository/global_repository.dart';
 
+import 'foundation/exception.dart';
+
+export 'foundation/exception.dart';
+
 class AdbResult {
   AdbResult(this.message);
 
   final String message;
-}
-
-class AdbException implements Exception {
-  AdbException({this.message});
-
-  final String message;
-
-  @override
-  String toString() {
-    return 'adb exception : $message';
-  }
 }
 
 class Arg {
@@ -206,9 +199,9 @@ class AdbUtil {
     // Log.e(resulta.stderr);
     final String result = await execCmd(cmd);
     if (result.contains(RegExp('refused|failed'))) {
-      throw AdbException(message: '$ipAndPort 无法连接，对方可能未打开网络ADB调试');
+      throw ConnectFail('$ipAndPort 无法连接，对方可能未打开网络ADB调试');
     } else if (result.contains('already connected')) {
-      throw AdbException(message: '该设备已连接');
+      throw AlreadyConnect('该设备已连接');
     } else if (result.contains('connect')) {
       return AdbResult('连接成功');
     } else if (result.contains('Successfully paired')) {
@@ -258,10 +251,10 @@ class AdbUtil {
         filePath,
         pushPath,
       ]);
-      Log.d('pushFile log -> $data');
+      Log.d('PushFile log -> $data');
       return true;
     } catch (e) {
-      Log.e('pushFile error -> $pushFile');
+      Log.e('PushFile error -> $pushFile');
       return false;
     }
   }
