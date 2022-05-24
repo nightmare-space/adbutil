@@ -35,6 +35,12 @@ Future<String> execCmdForIsolate(
   bool throwException = true,
 }) async {
   RuntimeEnvir.initEnvirWithPackageName(arg.package);
+  Map<String, String> envir = Map.from(RuntimeEnvir.envir());
+  String bin = File(Platform.resolvedExecutable).parent.path +
+      Platform.pathSeparator +
+      'data';
+  bin += '/usr/bin';
+  envir['PATH'] = bin + ':' + envir['PATH'];
   final List<String> args = arg.cmd.split(' ');
   ProcessResult execResult;
   if (Platform.isWindows) {
@@ -49,7 +55,7 @@ Future<String> execCmdForIsolate(
     execResult = await Process.run(
       args[0],
       args.sublist(1),
-      environment: RuntimeEnvir.envir(),
+      environment: envir,
       includeParentEnvironment: true,
       runInShell: false,
     );
@@ -68,6 +74,12 @@ Future<String> execCmd(
   bool throwException = true,
 }) async {
   final List<String> args = cmd.split(' ');
+  Map<String, String> envir = Map.from(RuntimeEnvir.envir());
+  String bin = File(Platform.resolvedExecutable).parent.path +
+      Platform.pathSeparator +
+      'data';
+  bin += '/usr/bin';
+  envir['PATH'] = bin + ':' + envir['PATH'];
   ProcessResult execResult;
   if (Platform.isWindows) {
     execResult = await Process.run(
@@ -81,7 +93,7 @@ Future<String> execCmd(
     execResult = await Process.run(
       args[0],
       args.sublist(1),
-      environment: RuntimeEnvir.envir(),
+      environment: envir,
       includeParentEnvironment: true,
       runInShell: false,
     );
