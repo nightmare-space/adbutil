@@ -47,7 +47,7 @@ Future<String> execCmdForIsolate(
       args.sublist(1),
       environment: RuntimeEnvir.envir(),
       includeParentEnvironment: true,
-      runInShell: false,
+      runInShell: true,
     );
   } else {
     execResult = await Process.run(
@@ -72,7 +72,6 @@ Future<String> execCmd(
   bool throwException = true,
 }) async {
   final List<String> args = cmd.split(' ');
-  Log.e(RuntimeEnvir.envir()['PATH']);
   Map<String, String> envir = RuntimeEnvir.envir();
   envir['TMPDIR'] = RuntimeEnvir.binPath;
   envir['LD_LIBRARY_PATH'] = RuntimeEnvir.binPath;
