@@ -103,6 +103,8 @@ Future<String> execCmd(
   return execResult.stdout.toString().trim();
 }
 
+// 单纯的依靠split(' ')在一些带空格的参数下会出错
+// 例如参数是路径，路径指向的文件夹有空格
 Future<String> execCmd2(List<String> args) async {
   ProcessResult execResult;
   if (Platform.isWindows) {
