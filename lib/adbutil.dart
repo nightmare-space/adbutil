@@ -74,6 +74,7 @@ Future<String> execCmd(
   final List<String> args = cmd.split(' ');
   Map<String, String> envir = RuntimeEnvir.envir();
   envir['TMPDIR'] = RuntimeEnvir.binPath;
+  envir['HOME'] = RuntimeEnvir.binPath;
   envir['LD_LIBRARY_PATH'] = RuntimeEnvir.binPath;
   ProcessResult execResult;
   if (Platform.isWindows) {
@@ -95,7 +96,7 @@ Future<String> execCmd(
   }
   if ('${execResult.stderr}'.isNotEmpty) {
     if (throwException) {
-      Log.w('adb stderr -> ${execResult.stderr}');
+      // Log.w('adb stderr -> ${execResult.stderr}');
       throw Exception(execResult.stderr);
     }
   }
@@ -289,7 +290,7 @@ Future<void> adbPollingIsolate(IsolateArgs args) async {
       String result = await execCmd('adb devices');
       args.sendPort.send(result);
     } catch (e) {
-      Log.i('e : ${e.toString()}');
+      Log.i('ADB polling error : ${e.toString()}');
     }
   });
 }
