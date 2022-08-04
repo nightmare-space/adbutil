@@ -30,14 +30,19 @@ Future<String> asyncExec(String cmd) async {
   return await compute(execCmdForIsolate, Arg(RuntimeEnvir.packageName, cmd));
 }
 
+Map<String, String> adbEnvir() {
+  Map<String, String> envir = RuntimeEnvir.envir();
+  envir['TMPDIR'] = RuntimeEnvir.binPath;
+  envir['HOME'] = RuntimeEnvir.binPath;
+  envir['LD_LIBRARY_PATH'] = RuntimeEnvir.binPath;
+  return envir;
+}
+
 Future<String> execCmdForIsolate(
   Arg arg, {
   bool throwException = true,
 }) async {
   RuntimeEnvir.initEnvirWithPackageName(arg.package);
-  Map<String, String> envir = RuntimeEnvir.envir();
-  envir['TMPDIR'] = RuntimeEnvir.binPath;
-  envir['LD_LIBRARY_PATH'] = RuntimeEnvir.binPath;
   final List<String> args = arg.cmd.split(' ');
   ProcessResult execResult;
   if (Platform.isWindows) {
@@ -53,7 +58,7 @@ Future<String> execCmdForIsolate(
     execResult = await Process.run(
       args[0],
       args.sublist(1),
-      environment: envir,
+      environment: adbEnvir(),
       includeParentEnvironment: true,
       runInShell: false,
     );
@@ -72,10 +77,6 @@ Future<String> execCmd(
   bool throwException = true,
 }) async {
   final List<String> args = cmd.split(' ');
-  Map<String, String> envir = RuntimeEnvir.envir();
-  envir['TMPDIR'] = RuntimeEnvir.binPath;
-  envir['HOME'] = RuntimeEnvir.binPath;
-  envir['LD_LIBRARY_PATH'] = RuntimeEnvir.binPath;
   ProcessResult execResult;
   if (Platform.isWindows) {
     execResult = await Process.run(
@@ -89,7 +90,7 @@ Future<String> execCmd(
     execResult = await Process.run(
       args[0],
       args.sublist(1),
-      environment: envir,
+      environment: adbEnvir(),
       includeParentEnvironment: true,
       runInShell: false,
     );
@@ -120,7 +121,7 @@ Future<String> execCmd2(List<String> args) async {
     execResult = await Process.run(
       args[0],
       args.sublist(1),
-      environment: RuntimeEnvir.envir(),
+      environment: adbEnvir(),
       includeParentEnvironment: true,
       runInShell: false,
     );
