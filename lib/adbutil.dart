@@ -30,6 +30,14 @@ Future<String> asyncExec(String cmd) async {
   return await compute(execCmdForIsolate, Arg(RuntimeEnvir.packageName, cmd));
 }
 
+String get adb {
+  String binary = 'adb';
+  if (Platform.isAndroid) {
+    binary = 'libadb.so';
+  }
+  return binary;
+}
+
 Map<String, String> adbEnvir() {
   Map<String, String> envir = RuntimeEnvir.envir();
   envir['TMPDIR'] = RuntimeEnvir.binPath;
@@ -164,6 +172,7 @@ class AdbUtil {
 
   static Future<void> startPoolingListDevices({
     Duration duration = const Duration(milliseconds: 600),
+    String libPath,
   }) async {
     if (_isPooling) {
       return;
@@ -181,7 +190,12 @@ class AdbUtil {
     });
     isolate = await Isolate.spawn(
       adbPollingIsolate,
-      IsolateArgs(duration, receivePort.sendPort, RuntimeEnvir.packageName),
+      IsolateArgs(
+        duration,
+        receivePort.sendPort,
+        RuntimeEnvir.packageName,
+        libPath,
+      ),
     );
   }
 
@@ -194,10 +208,10 @@ class AdbUtil {
   }
 
   static Future<AdbResult> connectDevices(String ipAndPort) async {
-    String cmd = 'adb connect $ipAndPort';
+    String cmd = '$adb connect $ipAndPort';
     if (ipAndPort.contains(' ')) {
       cmd =
-          'adb pair ${ipAndPort.split(' ').first} ${ipAndPort.split(' ').last}';
+          '$adb pair ${ipAndPort.split(' ').first} ${ipAndPort.split(' ').last}';
     }
     // ProcessResult resulta = await Process.run(
     //   'adb',
@@ -235,7 +249,7 @@ class AdbUtil {
     while (rangeStart != rangeEnd) {
       try {
         await execCmd(
-          'adb -s $serial forward tcp:$rangeStart $targetArg',
+          '$adb -s $serial forward tcp:$rangeStart $targetArg',
           throwException: false,
         );
         Log.d('端口$rangeStart绑定成功');
@@ -255,7 +269,7 @@ class AdbUtil {
   ) async {
     try {
       String data = await execCmd2([
-        'adb',
+        adb,
         '-s',
         serial,
         'push',
@@ -275,8 +289,9 @@ class IsolateArgs {
   final Duration duration;
   final SendPort sendPort;
   final String package;
-
-  IsolateArgs(this.duration, this.sendPort, this.package);
+  // for android
+  final String libPath;
+  IsolateArgs(this.duration, this.sendPort, this.package, this.libPath);
 }
 
 // 新isolate的入口函数
@@ -284,11 +299,13 @@ Future<void> adbPollingIsolate(IsolateArgs args) async {
   // 实例化一个ReceivePort 以接收消息
   final ReceivePort receivePort = ReceivePort();
   RuntimeEnvir.initEnvirWithPackageName(args.package);
+  RuntimeEnvir.put("PATH", args.libPath + ':' + RuntimeEnvir.path);
+  Log.e(RuntimeEnvir.path);
   // 把它的sendPort发送给宿主isolate，以便宿主可以给它发送消息
   args.sendPort.send(receivePort.sendPort);
   final Timer timer = Timer.periodic(args.duration, (timer) async {
     try {
-      String result = await execCmd('adb devices');
+      String result = await execCmd('$adb devices');
       args.sendPort.send(result);
     } catch (e) {
       Log.i('ADB polling error : ${e.toString()}');

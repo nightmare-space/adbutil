@@ -43,13 +43,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.16.0"
-  event_bus:
-    dependency: transitive
-    description:
-      name: event_bus
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "1.1.1"
   fake_async:
     dependency: transitive
     description:
@@ -74,19 +67,12 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
-  get:
-    dependency: transitive
-    description:
-      name: get
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "4.6.5"
   global_repository:
     dependency: "direct main"
     description:
       path: "."
       ref: HEAD
-      resolved-ref: "54428a018d40cb3c0f8b95752427323f6c179862"
+      resolved-ref: a5b0378786501a7ebccd0d7e7d0744768f97496c
       url: "https://github.com/nightmare-space/global_repository"
     source: git
     version: "0.0.1"
@@ -149,12 +135,10 @@ packages:
   signale:
     dependency: transitive
     description:
-      path: "."
-      ref: HEAD
-      resolved-ref: "99e278923e468ca882dd13208255fd0944ad5da3"
-      url: "https://github.com/nightmare-space/signale"
-    source: git
-    version: "0.0.6"
+      name: signale
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.0.7"
   sky_engine:
     dependency: transitive
     description: flutter
@@ -194,7 +178,7 @@ packages:
       name: synchronized
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "3.0.0+2"
+    version: "3.0.0+3"
   term_glyph:
     dependency: transitive
     description:
