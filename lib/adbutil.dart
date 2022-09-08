@@ -38,6 +38,9 @@ String get adb {
   return binary;
 }
 
+// 需要覆盖tmp路径
+// home路径
+// LD_LIBRARY_PATH环境变量
 Map<String, String> adbEnvir() {
   Map<String, String> envir = RuntimeEnvir.envir();
   envir['TMPDIR'] = RuntimeEnvir.binPath;
@@ -149,9 +152,15 @@ typedef ResultCall = void Function(String data);
 class AdbUtil {
   static final List<ResultCall> _callback = [];
   static Isolate isolate;
+  static String _libPath;
   static Future<void> reconnectDevices(String ip, [String port]) async {
     await disconnectDevices(ip);
     connectDevices(ip);
+  }
+
+  /// 给安卓用的，设置so库的位置
+  static void setLibraryPath(String path) {
+    _libPath = path;
   }
 
   static void addListener(ResultCall listener) {
@@ -172,7 +181,6 @@ class AdbUtil {
 
   static Future<void> startPoolingListDevices({
     Duration duration = const Duration(milliseconds: 600),
-    String libPath,
   }) async {
     if (_isPooling) {
       return;
@@ -194,7 +202,7 @@ class AdbUtil {
         duration,
         receivePort.sendPort,
         RuntimeEnvir.packageName,
-        libPath,
+        _libPath,
       ),
     );
   }
@@ -299,7 +307,9 @@ Future<void> adbPollingIsolate(IsolateArgs args) async {
   // 实例化一个ReceivePort 以接收消息
   final ReceivePort receivePort = ReceivePort();
   RuntimeEnvir.initEnvirWithPackageName(args.package);
-  RuntimeEnvir.put("PATH", args.libPath + ':' + RuntimeEnvir.path);
+  if (args.libPath != null) {
+    RuntimeEnvir.put("PATH", args.libPath + ':' + RuntimeEnvir.path);
+  }
   Log.e(RuntimeEnvir.path);
   // 把它的sendPort发送给宿主isolate，以便宿主可以给它发送消息
   args.sendPort.send(receivePort.sendPort);
