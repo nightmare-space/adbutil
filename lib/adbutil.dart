@@ -310,7 +310,6 @@ Future<void> adbPollingIsolate(IsolateArgs args) async {
   if (args.libPath != null) {
     RuntimeEnvir.put("PATH", args.libPath + ':' + RuntimeEnvir.path);
   }
-  Log.e(RuntimeEnvir.path);
   // 把它的sendPort发送给宿主isolate，以便宿主可以给它发送消息
   args.sendPort.send(receivePort.sendPort);
   final Timer timer = Timer.periodic(args.duration, (timer) async {
