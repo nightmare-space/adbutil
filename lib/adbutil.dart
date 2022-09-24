@@ -179,6 +179,19 @@ class AdbUtil {
     }
   }
 
+  /// 通过adb获取某个device的Display的列表
+  static Future<List<String>> getDisplays(String serial) async {
+    final List<String> displayList = [];
+    final String result = await execCmd(
+      '$adb -s $serial shell dumpsys display | grep mDisplayId=',
+    );
+    for (final String line in result.trim().split('\n')) {
+      displayList.add(line.replaceAll(RegExp('.*='), '').trim());
+    }
+    // 在安卓12会有多个相同的显示器
+    return displayList.toSet().toList();
+  }
+
   static Future<void> startPoolingListDevices({
     Duration duration = const Duration(milliseconds: 600),
   }) async {
