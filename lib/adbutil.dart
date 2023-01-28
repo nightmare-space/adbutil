@@ -17,7 +17,7 @@ class AdbResult {
 }
 
 class Arg {
-  final String package;
+  final String? package;
   final String cmd;
 
   Arg(this.package, this.cmd);
@@ -41,8 +41,8 @@ String get adb {
 // 需要覆盖tmp路径
 // home路径
 // LD_LIBRARY_PATH环境变量
-Map<String, String> adbEnvir() {
-  Map<String, String> envir = RuntimeEnvir.envir();
+Map<String, String?> adbEnvir() {
+  Map<String, String?> envir = RuntimeEnvir.envir();
   envir['TMPDIR'] = RuntimeEnvir.binPath;
   envir['HOME'] = RuntimeEnvir.binPath;
   envir['LD_LIBRARY_PATH'] = RuntimeEnvir.binPath;
@@ -53,11 +53,11 @@ Future<String> execCmdForIsolate(
   Arg arg, {
   bool throwException = true,
 }) async {
-  RuntimeEnvir.initEnvirWithPackageName(arg.package);
+  RuntimeEnvir.initEnvirWithPackageName(arg.package!);
   final List<String> args = arg.cmd.split(' ');
   ProcessResult execResult;
   if (Platform.isWindows) {
-    Log.e(RuntimeEnvir.envir()['PATH']);
+    Log.e(RuntimeEnvir.envir()['PATH']!);
     execResult = await Process.run(
       args[0],
       args.sublist(1),
@@ -69,7 +69,7 @@ Future<String> execCmdForIsolate(
     execResult = await Process.run(
       args[0],
       args.sublist(1),
-      environment: adbEnvir(),
+      environment: adbEnvir() as Map<String, String>?,
       includeParentEnvironment: true,
       runInShell: false,
     );
@@ -101,7 +101,7 @@ Future<String> execCmd(
     execResult = await Process.run(
       args[0],
       args.sublist(1),
-      environment: adbEnvir(),
+      environment: adbEnvir() as Map<String, String>?,
       includeParentEnvironment: true,
       runInShell: false,
     );
@@ -132,7 +132,7 @@ Future<String> execCmd2(List<String> args) async {
     execResult = await Process.run(
       args[0],
       args.sublist(1),
-      environment: adbEnvir(),
+      environment: adbEnvir() as Map<String, String>?,
       includeParentEnvironment: true,
       runInShell: false,
     );
@@ -147,13 +147,13 @@ Future<String> execCmd2(List<String> args) async {
 
 bool _isPooling = false;
 
-typedef ResultCall = void Function(String data);
+typedef ResultCall = void Function(String? data);
 
 class AdbUtil {
   static final List<ResultCall> _callback = [];
-  static Isolate isolate;
-  static String _libPath;
-  static Future<void> reconnectDevices(String ip, [String port]) async {
+  static late Isolate isolate;
+  static String? _libPath;
+  static Future<void> reconnectDevices(String ip, [String? port]) async {
     await disconnectDevices(ip);
     connectDevices(ip);
   }
@@ -173,7 +173,7 @@ class AdbUtil {
     }
   }
 
-  static void _notifiAll(String data) {
+  static void _notifiAll(String? data) {
     for (ResultCall call in _callback) {
       call(data);
     }
@@ -199,11 +199,11 @@ class AdbUtil {
       return;
     }
     _isPooling = true;
-    SendPort sendPort;
+    SendPort? sendPort;
     final ReceivePort receivePort = ReceivePort();
     receivePort.listen((dynamic msg) {
       if (sendPort == null) {
-        sendPort = msg as SendPort;
+        sendPort = msg as SendPort?;
       } else {
         _notifiAll(msg);
         // Log.e('Isolate Message -> $msg');
@@ -261,7 +261,7 @@ class AdbUtil {
     final String result = await execCmd('adb disconnect $ipAndPort');
   }
 
-  static Future<int> getForwardPort(
+  static Future<int?> getForwardPort(
     String serial, {
     int rangeStart = 27183,
     int rangeEnd = 27199,
@@ -309,9 +309,9 @@ class AdbUtil {
 class IsolateArgs {
   final Duration duration;
   final SendPort sendPort;
-  final String package;
+  final String? package;
   // for android
-  final String libPath;
+  final String? libPath;
   IsolateArgs(this.duration, this.sendPort, this.package, this.libPath);
 }
 
@@ -319,9 +319,9 @@ class IsolateArgs {
 Future<void> adbPollingIsolate(IsolateArgs args) async {
   // 实例化一个ReceivePort 以接收消息
   final ReceivePort receivePort = ReceivePort();
-  RuntimeEnvir.initEnvirWithPackageName(args.package);
+  RuntimeEnvir.initEnvirWithPackageName(args.package!);
   if (args.libPath != null) {
-    RuntimeEnvir.put("PATH", args.libPath + ':' + RuntimeEnvir.path);
+    RuntimeEnvir.put("PATH", args.libPath! + ':' + RuntimeEnvir.path!);
   }
   // 把它的sendPort发送给宿主isolate，以便宿主可以给它发送消息
   args.sendPort.send(receivePort.sendPort);

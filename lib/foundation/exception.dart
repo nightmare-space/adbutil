@@ -1,7 +1,7 @@
 class AdbException implements Exception {
   AdbException({this.message});
 
-  final String message;
+  final String? message;
 
   @override
   String toString() {
