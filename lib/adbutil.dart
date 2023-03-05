@@ -159,7 +159,7 @@ class AdbUtil {
   }
 
   /// 给安卓用的，设置so库的位置
-  static void setLibraryPath(String path) {
+  static void setLibraryPath(String? path) {
     _libPath = path;
   }
 
@@ -177,19 +177,6 @@ class AdbUtil {
     for (ResultCall call in _callback) {
       call(data);
     }
-  }
-
-  /// 通过adb获取某个device的Display的列表
-  static Future<List<String>> getDisplays(String serial) async {
-    final List<String> displayList = [];
-    final String result = await execCmd(
-      '$adb -s $serial shell dumpsys display | grep mDisplayId=',
-    );
-    for (final String line in result.trim().split('\n')) {
-      displayList.add(line.replaceAll(RegExp('.*='), '').trim());
-    }
-    // 在安卓12会有多个相同的显示器
-    return displayList.toSet().toList();
   }
 
   static Future<void> startPoolingListDevices({
@@ -231,8 +218,7 @@ class AdbUtil {
   static Future<AdbResult> connectDevices(String ipAndPort) async {
     String cmd = '$adb connect $ipAndPort';
     if (ipAndPort.contains(' ')) {
-      cmd =
-          '$adb pair ${ipAndPort.split(' ').first} ${ipAndPort.split(' ').last}';
+      cmd = '$adb pair ${ipAndPort.split(' ').first} ${ipAndPort.split(' ').last}';
     }
     // ProcessResult resulta = await Process.run(
     //   'adb',

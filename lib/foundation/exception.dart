@@ -1,5 +1,5 @@
-class AdbException implements Exception {
-  AdbException({this.message});
+class ADBException implements Exception {
+  ADBException({this.message});
 
   final String? message;
 
@@ -9,10 +9,10 @@ class AdbException implements Exception {
   }
 }
 
-class AlreadyConnect extends AdbException {
+class AlreadyConnect extends ADBException {
   AlreadyConnect(String message) : super(message: message);
 }
 
-class ConnectFail extends AdbException {
+class ConnectFail extends ADBException {
   ConnectFail(String message) : super(message: message);
 }
