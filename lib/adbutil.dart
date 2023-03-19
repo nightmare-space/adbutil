@@ -244,7 +244,7 @@ class AdbUtil {
   }
 
   static Future<void> disconnectDevices(String ipAndPort) async {
-    final String result = await execCmd('adb disconnect $ipAndPort');
+    final String result = await execCmd('$adb disconnect $ipAndPort');
   }
 
   static Future<int?> getForwardPort(
