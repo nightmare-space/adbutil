@@ -41,11 +41,12 @@ String get adb {
 // 需要覆盖tmp路径
 // home路径
 // LD_LIBRARY_PATH环境变量
-Map<String, String?> adbEnvir() {
-  Map<String, String?> envir = RuntimeEnvir.envir();
-  envir['TMPDIR'] = RuntimeEnvir.binPath;
-  envir['HOME'] = RuntimeEnvir.binPath;
-  envir['LD_LIBRARY_PATH'] = RuntimeEnvir.binPath;
+Map<String, String> adbEnvir() {
+  Map<String, String> envir = RuntimeEnvir.envir();
+  envir['TMPDIR'] = RuntimeEnvir.binPath!;
+  envir['HOME'] = RuntimeEnvir.binPath!;
+  envir['LD_LIBRARY_PATH'] = RuntimeEnvir.binPath!;
+  envir['RUST_LOG'] = 'debug';
   return envir;
 }
 
