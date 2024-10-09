@@ -32,9 +32,6 @@ Future<String> asyncExec(String cmd) async {
 
 String get adb {
   String binary = 'adb';
-  if (Platform.isAndroid) {
-    binary = 'libadb.so';
-  }
   return binary;
 }
 
