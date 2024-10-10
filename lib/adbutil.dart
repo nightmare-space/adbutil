@@ -41,6 +41,7 @@ String get adb {
 Map<String, String> adbEnvir() {
   Map<String, String> envir = RuntimeEnvir.envir();
   envir['TMPDIR'] = RuntimeEnvir.binPath!;
+  envir['PREFIX'] = RuntimeEnvir.usrPath!;
   envir['HOME'] = RuntimeEnvir.binPath!;
   envir['LD_LIBRARY_PATH'] = RuntimeEnvir.binPath!;
   envir['RUST_LOG'] = 'debug';
@@ -284,7 +285,7 @@ class AdbUtil {
       Log.d('PushFile log -> $data');
       return true;
     } catch (e) {
-      Log.e('PushFile error -> $pushFile');
+      Log.e('PushFile error -> $e');
       return false;
     }
   }
