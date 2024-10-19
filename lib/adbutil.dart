@@ -24,9 +24,6 @@ class Arg {
 }
 
 Future<String> asyncExec(String cmd) async {
-  if (kDebugMode) {
-    return execCmd(cmd);
-  }
   return await compute(execCmdForIsolate, Arg(RuntimeEnvir.packageName, cmd));
 }
 
