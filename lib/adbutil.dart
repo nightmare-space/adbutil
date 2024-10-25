@@ -97,7 +97,7 @@ Future<String> execCmd(
     execResult = await Process.run(
       args[0],
       args.sublist(1),
-      environment: adbEnvir() as Map<String, String>?,
+      environment: adbEnvir(),
       includeParentEnvironment: true,
       runInShell: false,
     );
